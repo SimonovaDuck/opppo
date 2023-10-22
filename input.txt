@@ -1,0 +1,18 @@
+ADD rectangle white 15.2 42.1 1.0 4.8 12.05.2024
+ADD triangle purple 3.4 5.4 1.1 1.1 2.7 7.4 12.11.2007
+ADD circle red 5 2 5 12.03.2025
+ADD rectangle yellow 15.2 42.1 1.0 4.8 11.07.2020
+ADD triangle green 3.4 5.4 1.1 1.1 2.7 7.4 12.11.2020
+ADD rectangle snow 15.2 42.1 1.0 4.8 12.05.2014
+REM = 2020
+PRINT
+ADD rectangle black 15.2 42.1 1.0 4.8 12.05.2020
+ADD triangle pink 3.4 5.4 1.1 1.1 2.7 7.4 12.11.2005
+ADD rectangle sun 15.2 42.1 1.0 4.8 11.07.2017
+REM > 2017
+PRINT
+ADD circle red 5 2 5 12.03.2025
+ADD rectangle yellow 15.2 42.1 1.0 4.8 11.07.2020
+ADD triangle green 3.4 5.4 1.1 1.1 2.7 7.4 12.11.2017
+REM < 2020
+PRINT
