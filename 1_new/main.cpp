@@ -5,6 +5,7 @@
 
 using namespace std;
 
+struct Figure;
 // Абстрактный базовый класс для всех фигур
 class Figure {
 protected:
@@ -13,11 +14,10 @@ protected:
 
 public:
     virtual ~Figure() {}  // Виртуальный деструктор для корректной очистки памяти
-    Figure* next;        // Указатель на следующую фигуру
-
+    
     // Конструктор, принимающий цвет и дату создания фигуры
     Figure(string _color, string _date)
-        : color(_color), date(_date), next(nullptr) {}
+        : color(_color), date(_date) {}
 
     // Абстрактный метод вывода информации о фигуре
     virtual void print() = 0;
@@ -111,27 +111,34 @@ public:
     }
 };
 
-class FigureList  {
-private:
-    Figure* head;  // Указатель на начало списка фигур
-    Figure* tail;  // Указатель на последний элемент списка фигур
-public:
-    FigureList() : head(nullptr) {}
+struct Node {
+    Node* next;
+    Figure* data;
     
-    // Метод добавления фигуры в список
-    void push_back(Figure* figure) {
+    Node(Figure* figure) {
+        data = figure;
+        next = nullptr;
+    }
+};
+
+class List {
+    Node* head;
+    Node* tail;
+public:
+    List() : head(nullptr) {}
+    
+    void push_back(Node* figure) {
         if (!head) {
             head = figure;
             head->next = head;
             tail = head; // Устанавливаем tail в случае пустого списка
         } else {
-            Figure* last = get_prev(head);
+            Node* last = get_prev(head);
             last->next = figure;
             figure->next = head;
             tail = figure; // Обновляем tail при добавлении новой фигуры
         }
     }
-    
     
     void pop_front() {
         if (head == nullptr) {
@@ -153,13 +160,13 @@ public:
         delete old_head;
     }
     
-    Figure* get_prev(Figure* node) {
+    Node* get_prev(Node* node) {
         if (head == nullptr) {
             return nullptr;
         }
         
-        Figure* prev = head;
-        Figure* current = head->next;
+        Node* prev = head;
+        Node* current = head->next;
         
         do {
             if (current == node) {
@@ -176,11 +183,9 @@ public:
         };
         
         return nullptr;
-            
-            
     }
     
-    Figure* remove(Figure* node) {
+    Node* remove(Node* node) {
         if (node == head) {
             pop_front();
             return head;
@@ -194,10 +199,10 @@ public:
     }
     
     void removeIfMatches(const string& condition) {
-        Figure *ptr = head;
+        Node *ptr = head;
         
         do {
-            if (ptr->matchesCondition(condition)) {
+            if (ptr->data->matchesCondition(condition)) {
                 ptr = remove(ptr);
                 
                 if (ptr == nullptr)
@@ -212,100 +217,33 @@ public:
             }
         } while (true);
         
-        if (ptr && ptr->matchesCondition(condition)) {
+        if (ptr && ptr->data->matchesCondition(condition)) {
             ptr = remove(ptr);
         }
     }
-//    // Метод удаления фигур, соответствующих условию
-//    void removeIfMatches(const string& condition) {
-//        if (!head) {
-//            return;
-//        }
-//
-//        Figure* newHead = nullptr;
-//        Figure* newTail = nullptr;
-//
-//        Figure* current = head;
-//
-//        do {
-//            Figure* next = current->next;
-//
-//            if (!current->matchesCondition(condition)) {//если фигура не соответствует условию (больше меньше равно году)
-//                Figure* newFigure = nullptr;
-//                // В зависимости от типа создаем соответствующий объект
-//                if (dynamic_cast<Circle*>(current)) {
-//                    Circle* circle = dynamic_cast<Circle*>(current);
-//                    newFigure = new Circle(*circle);
-//                } else if (dynamic_cast<Rectangle*>(current)) {
-//                    Rectangle* rectangle = dynamic_cast<Rectangle*>(current);
-//                    newFigure = new Rectangle(*rectangle);
-//                } else if (dynamic_cast<Triangle*>(current)) {
-//                    Triangle* triangle = dynamic_cast<Triangle*>(current);
-//                    newFigure = new Triangle(*triangle);
-//                }
-//                
-//                if (!newHead) {
-//                    newHead = newFigure;
-//                    newHead->next = newHead;
-//                    newTail = newHead;
-//                } else {
-//                    newTail->next = newFigure;
-//                    newFigure->next = newHead;
-//                    newTail = newFigure;
-//                }
-//            }
-//
-//            current = next;
-//        } while (current != head);
-//
-//        // Удаляем старый список
-//        Figure* temp = head;
-//        do {
-//            Figure* next = temp->next;
-//            delete temp;
-//            temp = next;
-//        } while (temp != head);
-////делаем новый список как старый, ибо иначе никакими средствами >< не обрабатывались
-//        head = newHead;
-//        tail = newTail;
-//    }
-
-
+    
     // Метод вывода всех фигур
     void printAll() const {
         if (!head) {
             return;
         }
 
-        Figure* current = head;
+        Node* current = head;
 
         do {
             if (current == nullptr)
                 break;
-            current->print();
+            current->data->print();
             current = current->next;
         } while (current != head);
         cout << endl;  // Добавляем перевод строки для корректного вывода.
     }
-
-    // Деструктор для освобождения памяти
-    ~FigureList() {
-        if (!head) {
-            return;
-        }
-
-        Figure* current = head;
-
-        do {
-            Figure* next = current->next;
-            delete current;
-            current = next;
-        } while (current != head);
-    }
 };
 
+
+
 int main() {
-    FigureList figureList;
+    List figureList;
     ifstream inputFile("/Users/alisa/Desktop/opppo/1_new/1_new/input.txt");
 
     if (!inputFile.is_open()) {
@@ -328,15 +266,15 @@ int main() {
                 iss >> radius >> x1 >> y1;
                 iss >> date;
                 Point center(x1, y1);
-                figureList.push_back(new Circle(color, center, radius, date));
+                figureList.push_back(new Node(new Circle(color, center, radius, date)));
             } else if (type == "rectangle") {
                 iss >> x1 >> y1 >> x2 >> y2 >> date;
                 Point p1(x1, y1), p2(x2, y2);
-                figureList.push_back(new Rectangle(color, p1, p2, date));
+                figureList.push_back(new Node(new Rectangle(color, p1, p2, date)));
             } else if (type == "triangle") {
                 iss >> x1 >> y1 >> x2 >> y2 >> x3 >> y3 >> date;
                 Point p1(x1, y1), p2(x2, y2), p3(x3, y3);
-                figureList.push_back(new Triangle(color, p1, p2, p3, date));
+                figureList.push_back(new Node(new Triangle(color, p1, p2, p3, date)));
             } else {
                 cerr << "Wrong type figure" << endl;
             }
