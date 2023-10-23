@@ -111,13 +111,13 @@ public:
     }
 };
 
-class FigureList {
+class FigureList  {
 private:
     Figure* head;  // Указатель на начало списка фигур
     Figure* tail;  // Указатель на последний элемент списка фигур
 public:
     FigureList() : head(nullptr) {}
-
+    
     // Метод добавления фигуры в список
     void push_back(Figure* figure) {
         if (!head) {
@@ -125,70 +125,150 @@ public:
             head->next = head;
             tail = head; // Устанавливаем tail в случае пустого списка
         } else {
-            Figure* current = head;
-            while (current->next != head) {
-                current = current->next;
-            }
-            current->next = figure;
+            Figure* last = get_prev(head);
+            last->next = figure;
             figure->next = head;
             tail = figure; // Обновляем tail при добавлении новой фигуры
         }
     }
-
-
-    // Метод удаления фигур, соответствующих условию
-    void removeIfMatches(const string& condition) {
-        if (!head) {
+    
+    
+    void pop_front() {
+        if (head == nullptr) {
             return;
         }
-
-        Figure* newHead = nullptr;
-        Figure* newTail = nullptr;
-
-        Figure* current = head;
-
-        do {
-            Figure* next = current->next;
-
-            if (!current->matchesCondition(condition)) {//если фигура не соответствует условию (больше меньше равно году)
-                Figure* newFigure = nullptr;
-                // В зависимости от типа создаем соответствующий объект
-                if (dynamic_cast<Circle*>(current)) {
-                    Circle* circle = dynamic_cast<Circle*>(current);
-                    newFigure = new Circle(*circle);
-                } else if (dynamic_cast<Rectangle*>(current)) {
-                    Rectangle* rectangle = dynamic_cast<Rectangle*>(current);
-                    newFigure = new Rectangle(*rectangle);
-                } else if (dynamic_cast<Triangle*>(current)) {
-                    Triangle* triangle = dynamic_cast<Triangle*>(current);
-                    newFigure = new Triangle(*triangle);
-                }
-                
-                if (!newHead) {
-                    newHead = newFigure;
-                    newHead->next = newHead;
-                    newTail = newHead;
-                } else {
-                    newTail->next = newFigure;
-                    newFigure->next = newHead;
-                    newTail = newFigure;
-                }
-            }
-
-            current = next;
-        } while (current != head);
-
-        // Удаляем старый список
-        Figure* temp = head;
-        do {
-            Figure* next = temp->next;
-            delete temp;
-            temp = next;
-        } while (temp != head);
-//делаем новый список как старый, ибо иначе никакими средствами >< не обрабатывались
-        head = newHead;
-        tail = newTail;
+        
+        if (head->next == head) {
+            delete head;
+            tail = nullptr;
+            head = nullptr;
+        }
+        
+        auto old_head = head;
+        
+        auto last = get_prev(head);
+        
+        head = head->next;
+        last->next = head;
+        delete old_head;
     }
+    
+    Figure* get_prev(Figure* node) {
+        if (head == nullptr) {
+            return nullptr;
+        }
+        
+        Figure* prev = head;
+        Figure* current = head->next;
+        
+        do {
+            if (current == node) {
+                return prev;
+            }
+            
+            prev = current;
+            current = current->next;
+        } while (current != head);
+        
+        if (current == node) {
+            return prev;
+        
+        };
+        
+        return nullptr;
+            
+            
+    }
+    
+    Figure* remove(Figure* node) {
+        if (node == head) {
+            pop_front();
+            return head;
+        }
+        
+        auto prev = get_prev(node);
+        
+        prev->next = node->next;
+        delete node;
+        return prev->next;
+    }
+    
+    void removeIfMatches(const string& condition) {
+        Figure *ptr = head;
+        
+        do {
+            if (ptr->matchesCondition(condition)) {
+                ptr = remove(ptr);
+                
+                if (ptr == nullptr)
+                    break;
+                continue;
+            }
+            
+            ptr = ptr->next;
+            
+            if (ptr == head) {
+                break;
+            }
+        } while (true);
+        
+        if (ptr && ptr->matchesCondition(condition)) {
+            ptr = remove(ptr);
+        }
+    }
+//    // Метод удаления фигур, соответствующих условию
+//    void removeIfMatches(const string& condition) {
+//        if (!head) {
+//            return;
+//        }
+//
+//        Figure* newHead = nullptr;
+//        Figure* newTail = nullptr;
+//
+//        Figure* current = head;
+//
+//        do {
+//            Figure* next = current->next;
+//
+//            if (!current->matchesCondition(condition)) {//если фигура не соответствует условию (больше меньше равно году)
+//                Figure* newFigure = nullptr;
+//                // В зависимости от типа создаем соответствующий объект
+//                if (dynamic_cast<Circle*>(current)) {
+//                    Circle* circle = dynamic_cast<Circle*>(current);
+//                    newFigure = new Circle(*circle);
+//                } else if (dynamic_cast<Rectangle*>(current)) {
+//                    Rectangle* rectangle = dynamic_cast<Rectangle*>(current);
+//                    newFigure = new Rectangle(*rectangle);
+//                } else if (dynamic_cast<Triangle*>(current)) {
+//                    Triangle* triangle = dynamic_cast<Triangle*>(current);
+//                    newFigure = new Triangle(*triangle);
+//                }
+//                
+//                if (!newHead) {
+//                    newHead = newFigure;
+//                    newHead->next = newHead;
+//                    newTail = newHead;
+//                } else {
+//                    newTail->next = newFigure;
+//                    newFigure->next = newHead;
+//                    newTail = newFigure;
+//                }
+//            }
+//
+//            current = next;
+//        } while (current != head);
+//
+//        // Удаляем старый список
+//        Figure* temp = head;
+//        do {
+//            Figure* next = temp->next;
+//            delete temp;
+//            temp = next;
+//        } while (temp != head);
+////делаем новый список как старый, ибо иначе никакими средствами >< не обрабатывались
+//        head = newHead;
+//        tail = newTail;
+//    }
 
 
     // Метод вывода всех фигур
@@ -200,6 +280,8 @@ public:
         Figure* current = head;
 
         do {
+            if (current == nullptr)
+                break;
             current->print();
             current = current->next;
         } while (current != head);

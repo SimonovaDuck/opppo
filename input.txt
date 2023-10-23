@@ -16,3 +16,5 @@ ADD rectangle yellow 15.2 42.1 1.0 4.8 11.07.2020
 ADD triangle green 3.4 5.4 1.1 1.1 2.7 7.4 12.11.2017
 REM < 2020
 PRINT
+ADD triangle green 3.4 5.4 1.1 1.1 2.7 7.4 12.11.2017
+PRINT
