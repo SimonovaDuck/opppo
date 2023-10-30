@@ -179,7 +179,7 @@ public:
         
         if (current == node) {
             return prev;
-        
+            
         };
         
         return nullptr;
@@ -227,9 +227,7 @@ public:
         if (!head) {
             return;
         }
-
         Node* current = head;
-
         do {
             if (current == nullptr)
                 break;
@@ -238,10 +236,36 @@ public:
         } while (current != head);
         cout << endl;  // Добавляем перевод строки для корректного вывода.
     }
+    
+    void func_read(string& line)
+    {
+        
+        stringstream sstr;
+        sstr << line;
+        
+        string type, color, date;
+        sstr >> type >> color;
+        double x1, x2, x3, y1, y2, y3, radius;
+        if (type == "circle") {
+            sstr >> x1 >> y1 >> radius >> date;
+            Point p1(x1,y1);
+            push_back(new Node(new Circle(color, p1, radius, date)));
+        } else if (type == "rectangle") {
+            sstr >> x1 >> y1 >>x2>> y2  >> date;
+            Point p1(x1,y1);
+            Point p2(x2,y2);
+            push_back(new Node(new Rectangle(color, p1, p2, date)));
+        } else if (type == "triangle") {
+            sstr >> x1 >> y1 >> x2 >> y2 >>x3 >> y3 >> date;
+            Point p1(x1,y1);
+            Point p2(x2,y2);
+            Point p3(x3,y3);
+            push_back(new Node(new Triangle(color, p1, p2, p3, date)));
+        } else {
+            cerr << "Wrong type figure" << endl;
+        }
+    }
 };
-
-
-
 int main() {
     List figureList;
     ifstream inputFile("/Users/alisa/Desktop/opppo/1_new/1_new/input.txt");
@@ -256,29 +280,12 @@ int main() {
         istringstream iss(line);
         string command;
         iss >> command;
-
         if (command == "ADD") {
-            string type, color, date;
-            double x1, y1, x2, y2, x3, y3, radius;
-            iss >> type >> color;
-
-            if (type == "circle") {
-                iss >> radius >> x1 >> y1;
-                iss >> date;
-                Point center(x1, y1);
-                figureList.push_back(new Node(new Circle(color, center, radius, date)));
-            } else if (type == "rectangle") {
-                iss >> x1 >> y1 >> x2 >> y2 >> date;
-                Point p1(x1, y1), p2(x2, y2);
-                figureList.push_back(new Node(new Rectangle(color, p1, p2, date)));
-            } else if (type == "triangle") {
-                iss >> x1 >> y1 >> x2 >> y2 >> x3 >> y3 >> date;
-                Point p1(x1, y1), p2(x2, y2), p3(x3, y3);
-                figureList.push_back(new Node(new Triangle(color, p1, p2, p3, date)));
-            } else {
-                cerr << "Wrong type figure" << endl;
-            }
-        } else if (command == "REM") {
+            string line;
+            getline(iss, line);
+            figureList.func_read(line);
+        }
+        else if (command == "REM") {
             string condition;
             getline(iss, condition);
             figureList.removeIfMatches(condition);
